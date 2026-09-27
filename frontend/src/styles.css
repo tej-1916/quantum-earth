@@ -430,6 +430,15 @@ a:hover .inline-arrow {
   justify-content: center;
 }
 
+@keyframes earthSlowRotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 .hero-visual .visual-photo {
   position: absolute;
   width: min(80vh, 640px);
@@ -442,6 +451,8 @@ a:hover .inline-arrow {
   box-shadow: 0 0 100px -10px rgba(56, 189, 248, 0.45), 0 0 45px rgba(94, 234, 212, 0.25);
   z-index: 2;
   filter: brightness(1.05) contrast(1.04);
+  animation: earthSlowRotate 64s linear infinite;
+  will-change: transform;
 }
 
 /* Glowing 3D orbital rings around Earth */
@@ -1799,6 +1810,100 @@ a:hover .inline-arrow {
   margin: 0;
 }
 
+/* Closing Section Earth Visual & Orbital Anchor */
+.closing-earth-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 36px auto 32px;
+  position: relative;
+  z-index: 3;
+}
+
+.closing-earth-visual {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: transparent !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.closing-earth-visual .visual-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.closing-earth-visual .visual-photo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 75px -5px rgba(56, 189, 248, 0.45), 0 0 30px rgba(94, 234, 212, 0.25);
+  z-index: 2;
+  filter: brightness(1.05) contrast(1.04);
+  animation: earthSlowRotate 72s linear infinite;
+  will-change: transform;
+}
+
+/* Glowing orbital rings around closing Earth */
+.closing-earth-visual::before {
+  content: "";
+  position: absolute;
+  width: 270px;
+  height: 110px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-22deg);
+  border: 1.5px dashed rgba(155, 246, 231, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.closing-earth-visual::after {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 130px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(34deg);
+  border: 1px solid rgba(155, 246, 231, 0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.closing-earth-telemetry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--accent-cyan);
+}
+
+.telemetry-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.8);
+}
+
 .closing-actions {
   display: flex;
   justify-content: center;
@@ -2031,6 +2136,26 @@ a:hover .inline-arrow {
     align-items: flex-start;
     gap: 16px;
   }
+
+  .closing-earth-visual {
+    width: 150px;
+    height: 150px;
+  }
+
+  .closing-earth-visual::before {
+    width: 200px;
+    height: 85px;
+  }
+
+  .closing-earth-visual::after {
+    width: 220px;
+    height: 100px;
+  }
+
+  .closing-earth-telemetry {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+  }
 }
 
 /* ==========================================================================
@@ -2042,6 +2167,12 @@ a:hover .inline-arrow {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .hero-visual .visual-photo,
+  .closing-earth-visual .visual-photo {
+    animation: none !important;
+    transform: translate(-50%, -50%) !important;
   }
 
   .reveal {

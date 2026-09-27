@@ -1134,6 +1134,14 @@ export default function App() {
               </div>
             </div>
 
+            <div className="closing-earth-wrap reveal stagger-2">
+              <Visual name="earth" className="closing-earth-visual" />
+              <div className="closing-earth-telemetry">
+                <span className="telemetry-dot" />
+                <span>PLANETARY SCALE · LOW EARTH ORBIT (LEO) · 10M GSD</span>
+              </div>
+            </div>
+
             <div className="closing-actions">
               <a href="#top" className="button button--outline">
                 Back to Earth ↑
