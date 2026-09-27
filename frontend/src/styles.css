@@ -392,7 +392,30 @@ a:hover .inline-arrow {
   isolation: isolate;
   overflow: hidden;
   padding-top: var(--header-height);
-  background: radial-gradient(circle at 75% 55%, #103444 0%, #081724 38%, #070c13 80%);
+  background-color: #070c13;
+}
+
+.hero-space {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(1px 1px at 40px 60px, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 170px 120px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 320px 220px, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1px 1px at 490px 80px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 640px 190px, rgba(155, 246, 231, 0.5), transparent),
+    radial-gradient(1px 1px at 780px 130px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 910px 310px, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 1040px 90px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.5px 1.5px at 1180px 210px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 1340px 140px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 280px 420px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 720px 520px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 890px 490px, rgba(155, 246, 231, 0.45), transparent),
+    radial-gradient(1px 1px at 1110px 460px, rgba(255, 255, 255, 0.45), transparent);
+  background-size: 1400px 700px;
 }
 
 .hero-grid {
@@ -441,30 +464,30 @@ a:hover .inline-arrow {
 
 .hero-visual .visual-photo {
   position: absolute;
-  width: min(80vh, 640px);
-  height: min(80vh, 640px);
+  width: min(76vh, 600px);
+  height: min(76vh, 600px);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 0 100px -10px rgba(56, 189, 248, 0.45), 0 0 45px rgba(94, 234, 212, 0.25);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.22), 0 0 8px rgba(94, 234, 212, 0.25);
   z-index: 2;
-  filter: brightness(1.05) contrast(1.04);
+  filter: brightness(1.04) contrast(1.03);
   animation: earthSlowRotate 64s linear infinite;
   will-change: transform;
 }
 
-/* Glowing 3D orbital rings around Earth */
+/* Subtle static orbital tracks around Earth */
 .hero-visual::before {
   content: "";
   position: absolute;
-  width: min(94vh, 760px);
-  height: min(44vh, 350px);
+  width: min(92vh, 720px);
+  height: min(40vh, 320px);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-24deg);
-  border: 1.5px dashed rgba(155, 246, 231, 0.35);
+  border: 1px dashed rgba(155, 246, 231, 0.16);
   border-radius: 50%;
   pointer-events: none;
   z-index: 3;
@@ -473,12 +496,12 @@ a:hover .inline-arrow {
 .hero-visual::after {
   content: "";
   position: absolute;
-  width: min(98vh, 800px);
-  height: min(48vh, 390px);
+  width: min(96vh, 760px);
+  height: min(44vh, 350px);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(32deg);
-  border: 1px solid rgba(155, 246, 231, 0.2);
+  border: 1px solid rgba(155, 246, 231, 0.08);
   border-radius: 50%;
   pointer-events: none;
   z-index: 3;
@@ -1847,16 +1870,16 @@ a:hover .inline-arrow {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 0 75px -5px rgba(56, 189, 248, 0.45), 0 0 30px rgba(94, 234, 212, 0.25);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25), 0 0 6px rgba(94, 234, 212, 0.2);
   z-index: 2;
-  filter: brightness(1.05) contrast(1.04);
+  filter: brightness(1.04) contrast(1.03);
   animation: earthSlowRotate 72s linear infinite;
   will-change: transform;
 }
 
-/* Glowing orbital rings around closing Earth */
+/* Subtle orbital rings around closing Earth */
 .closing-earth-visual::before {
   content: "";
   position: absolute;
@@ -1865,7 +1888,7 @@ a:hover .inline-arrow {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-22deg);
-  border: 1.5px dashed rgba(155, 246, 231, 0.4);
+  border: 1px dashed rgba(155, 246, 231, 0.2);
   border-radius: 50%;
   pointer-events: none;
   z-index: 3;
@@ -1879,7 +1902,7 @@ a:hover .inline-arrow {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(34deg);
-  border: 1px solid rgba(155, 246, 231, 0.2);
+  border: 1px solid rgba(155, 246, 231, 0.09);
   border-radius: 50%;
   pointer-events: none;
   z-index: 3;

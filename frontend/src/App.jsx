@@ -824,6 +824,7 @@ export default function App() {
       <main id="main-content">
         {/* SECTION 1: HERO */}
         <section id="top" className="hero">
+          <div className="hero-space" aria-hidden="true" />
           <div className="hero-grid" aria-hidden="true" />
           <Visual name="earth" className="hero-visual" />
           <div className="hero-shade" />
