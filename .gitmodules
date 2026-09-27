@@ -1,0 +1,3 @@
+[submodule "references/screenshot-to-code"]
+	path = references/screenshot-to-code
+	url = https://github.com/abi/screenshot-to-code.git
