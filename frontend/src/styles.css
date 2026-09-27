@@ -205,13 +205,25 @@ a:hover .inline-arrow {
 .reveal {
   opacity: 0;
   transform: translateY(32px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.stagger-1 {
+  transition-delay: 0.12s;
+}
+
+.stagger-2 {
+  transition-delay: 0.24s;
+}
+
+.stagger-3 {
+  transition-delay: 0.36s;
 }
 
 /* ==========================================================================
@@ -380,7 +392,7 @@ a:hover .inline-arrow {
   isolation: isolate;
   overflow: hidden;
   padding-top: var(--header-height);
-  background: radial-gradient(circle at 75% 55%, #0e2b38 0%, #081622 35%, #070c13 75%);
+  background: radial-gradient(circle at 75% 55%, #103444 0%, #081724 38%, #070c13 80%);
 }
 
 .hero-grid {
@@ -416,6 +428,49 @@ a:hover .inline-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero-visual .visual-photo {
+  position: absolute;
+  width: min(80vh, 640px);
+  height: min(80vh, 640px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 100px -10px rgba(56, 189, 248, 0.45), 0 0 45px rgba(94, 234, 212, 0.25);
+  z-index: 2;
+  filter: brightness(1.05) contrast(1.04);
+}
+
+/* Glowing 3D orbital rings around Earth */
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  width: min(94vh, 760px);
+  height: min(44vh, 350px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-24deg);
+  border: 1.5px dashed rgba(155, 246, 231, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  width: min(98vh, 800px);
+  height: min(48vh, 390px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(32deg);
+  border: 1px solid rgba(155, 246, 231, 0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
 }
 
 .hero-shade {
@@ -480,6 +535,19 @@ a:hover .inline-arrow {
   z-index: 4;
 }
 
+@keyframes scrollCueBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+.hero-bottom span:last-child {
+  animation: scrollCueBounce 2.2s ease-in-out infinite;
+}
+
 .hero-telemetry {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -519,7 +587,7 @@ a:hover .inline-arrow {
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 2;
 }
 
@@ -547,7 +615,7 @@ a:hover .inline-arrow {
    SECTION 2: MISSION
    ========================================================================== */
 .mission {
-  background-color: #081119;
+  background: radial-gradient(circle at 85% 20%, rgba(14, 43, 56, 0.4) 0%, transparent 60%), #081119;
 }
 
 .mission-layout {
@@ -595,6 +663,10 @@ a:hover .inline-arrow {
 .mission-visual {
   height: 520px;
   position: relative;
+}
+
+.mission-visual:hover .visual-photo {
+  transform: scale(1.03);
 }
 
 .mission-photo {
@@ -654,7 +726,7 @@ a:hover .inline-arrow {
    SECTION 3: LANDSCAPES & SIGNALS
    ========================================================================== */
 .landscapes {
-  background-color: #0b151e;
+  background: radial-gradient(circle at 15% 45%, rgba(20, 36, 49, 0.5) 0%, transparent 60%), #0b151e;
 }
 
 .landscape-grid {
@@ -674,6 +746,10 @@ a:hover .inline-arrow {
 .landscape-card:hover {
   transform: translateY(-6px);
   border-color: var(--border-accent);
+}
+
+.landscape-card:hover .visual-photo {
+  transform: scale(1.04);
 }
 
 .landscape-card--offset {
@@ -725,7 +801,7 @@ a:hover .inline-arrow {
    SECTION 4: APPROACHES (CLASSICAL VS QUANTUM)
    ========================================================================== */
 .approach {
-  background-color: #070e17;
+  background: radial-gradient(circle at 80% 25%, rgba(88, 28, 135, 0.15) 0%, transparent 55%), radial-gradient(circle at 20% 75%, rgba(14, 43, 56, 0.25) 0%, transparent 55%), #070e17;
 }
 
 .model-grid {
@@ -907,7 +983,18 @@ a:hover .inline-arrow {
 }
 
 .quantum-art {
+  position: relative;
   height: 280px;
+  overflow: hidden;
+}
+
+.quantum-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(11, 15, 26, 0.95) 100%);
+  pointer-events: none;
+  z-index: 3;
 }
 
 /* Interactive Quantum Circuit Diagram */
@@ -1098,11 +1185,17 @@ a:hover .inline-arrow {
    SECTION 5: COMPARISON MATRIX
    ========================================================================== */
 .compare {
-  background-color: #0a131b;
+  background: radial-gradient(circle at 50% 50%, rgba(16, 36, 52, 0.35) 0%, transparent 70%), #0a131b;
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
 }
 
 .comparison-table {
-  border-top: 1px solid var(--border-medium);
+  min-width: 640px;
   background: var(--bg-card);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -1164,7 +1257,7 @@ a:hover .inline-arrow {
    SECTION 6: INTERACTIVE LAB
    ========================================================================== */
 .lab {
-  background-color: #070f17;
+  background: radial-gradient(circle at 75% 25%, rgba(14, 43, 56, 0.4) 0%, transparent 60%), #070f17;
 }
 
 .lab-container {

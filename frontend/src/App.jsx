@@ -316,6 +316,14 @@ function VisualSvg({ type }) {
   return null;
 }
 
+const imageAltTexts = {
+  earth: "Planet Earth seen from low orbit with glowing blue-cyan atmosphere and oceans",
+  coast: "Sentinel-2 satellite view of coastal estuary and sandbars with turquoise tidal sediment",
+  farm: "Overhead multispectral satellite imagery of circular center-pivot irrigation cropland",
+  city: "High-resolution satellite observation of maritime harbor and urban infrastructure grid",
+  quantum: "Superconducting quantum computing dilution refrigerator chandelier with gold stages and cryogenic wiring",
+};
+
 function Visual({ name, className = "", children }) {
   const [loaded, setLoaded] = useState(false);
 
@@ -326,7 +334,7 @@ function Visual({ name, className = "", children }) {
       </div>
       <img
         src={imagePaths[name]}
-        alt=""
+        alt={imageAltTexts[name] || "Earth observation visual"}
         loading={name === "earth" ? "eager" : "lazy"}
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(false)}
@@ -418,10 +426,10 @@ function QuantumCircuitDiagram() {
   );
 }
 
-function ModelCard({ type }) {
+function ModelCard({ type, className = "" }) {
   const quantum = type === "quantum";
   return (
-    <article className={`model-card ${quantum ? "model-card--quantum" : ""}`}>
+    <article className={`model-card ${quantum ? "model-card--quantum" : ""} ${className}`}>
       <div className="model-card-top">
         <span className="model-glyph">{quantum ? "✳" : "◉"}</span>
         <span className="model-index">{quantum ? "MODEL 02 · HYBRID QUANTUM" : "MODEL 01 · CLASSICAL DL"}</span>
@@ -911,7 +919,7 @@ export default function App() {
             />
 
             <div className="landscape-grid">
-              <article className="landscape-card reveal">
+              <article className="landscape-card reveal stagger-1">
                 <Visual name="farm">
                   <span className="image-label">01 / AGRICULTURE · CROPLAND</span>
                 </Visual>
@@ -927,7 +935,7 @@ export default function App() {
                 </div>
               </article>
 
-              <article className="landscape-card landscape-card--offset reveal">
+              <article className="landscape-card landscape-card--offset reveal stagger-2">
                 <Visual name="city">
                   <span className="image-label">02 / URBAN INFRASTRUCTURE</span>
                 </Visual>
@@ -961,8 +969,8 @@ export default function App() {
             />
 
             <div className="model-grid reveal">
-              <ModelCard type="classical" />
-              <ModelCard type="quantum" />
+              <ModelCard type="classical" className="stagger-1" />
+              <ModelCard type="quantum" className="stagger-2" />
             </div>
           </div>
 
@@ -1005,64 +1013,66 @@ export default function App() {
               body="A rigorous scientific comparison controls dataset splits, preprocessing pipelines, and evaluation metrics. A quantum model earns its place through verified, reproducible experimental data."
             />
 
-            <div className="comparison-table reveal" role="table" aria-label="Scientific model comparison matrix">
-              <div className="comparison-row comparison-row--head" role="row">
-                <span role="columnheader">EVALUATION METRIC</span>
-                <span role="columnheader">CLASSICAL BASELINE (CNN)</span>
-                <span role="columnheader">HYBRID QUANTUM (HQNN)</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Architecture Type</strong>
-                </span>
-                <span role="cell">ResNet-18 Deep Convolutional</span>
-                <span role="cell">ResNet Feature Extractor + 8-Qubit VQC</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Input Representation</strong>
-                </span>
-                <span role="cell">64×64 Sentinel-2 Multispectral (12 Bands)</span>
-                <span role="cell">Compact Latent State + Angle Embedding</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Model Parameters</strong>
-                </span>
-                <span role="cell">~11.2M Classical Weights</span>
-                <span role="cell">~1.2M Classical + 48 Variational Quantum Gates</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Validation Accuracy</strong>
-                </span>
-                <span role="cell" className="metric-pending">Not measured · Awaiting run</span>
-                <span role="cell" className="metric-pending">Not measured · Awaiting run</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Inference Latency</strong>
-                </span>
-                <span role="cell" className="metric-pending">Not measured · GPU</span>
-                <span role="cell" className="metric-pending">Not measured · Simulator/QPU</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Shared Benchmark Split</strong>
-                </span>
-                <span role="cell" className="metric-planned">Planned · EuroSAT / BigEarthNet</span>
-                <span role="cell" className="metric-planned">Planned · EuroSAT / BigEarthNet</span>
-              </div>
-              <div className="comparison-row" role="row">
-                <span role="cell">
-                  <strong>Integration Status</strong>
-                </span>
-                <span role="cell">
-                  <span className="status-badge status-badge--pending">Not Connected</span>
-                </span>
-                <span role="cell">
-                  <span className="status-badge status-badge--pending">Not Connected</span>
-                </span>
+            <div className="comparison-table-wrapper reveal">
+              <div className="comparison-table" role="table" aria-label="Scientific model comparison matrix">
+                <div className="comparison-row comparison-row--head" role="row">
+                  <span role="columnheader">EVALUATION METRIC</span>
+                  <span role="columnheader">CLASSICAL BASELINE (CNN)</span>
+                  <span role="columnheader">HYBRID QUANTUM (HQNN)</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Architecture Type</strong>
+                  </span>
+                  <span role="cell">ResNet-18 Deep Convolutional</span>
+                  <span role="cell">ResNet Feature Extractor + 8-Qubit VQC</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Input Representation</strong>
+                  </span>
+                  <span role="cell">64×64 Sentinel-2 Multispectral (12 Bands)</span>
+                  <span role="cell">Compact Latent State + Angle Embedding</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Model Parameters</strong>
+                  </span>
+                  <span role="cell">~11.2M Classical Weights</span>
+                  <span role="cell">~1.2M Classical + 48 Variational Quantum Gates</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Validation Accuracy</strong>
+                  </span>
+                  <span role="cell" className="metric-pending">Not measured · Awaiting run</span>
+                  <span role="cell" className="metric-pending">Not measured · Awaiting run</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Inference Latency</strong>
+                  </span>
+                  <span role="cell" className="metric-pending">Not measured · GPU</span>
+                  <span role="cell" className="metric-pending">Not measured · Simulator/QPU</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Shared Benchmark Split</strong>
+                  </span>
+                  <span role="cell" className="metric-planned">Planned · EuroSAT / BigEarthNet</span>
+                  <span role="cell" className="metric-planned">Planned · EuroSAT / BigEarthNet</span>
+                </div>
+                <div className="comparison-row" role="row">
+                  <span role="cell">
+                    <strong>Integration Status</strong>
+                  </span>
+                  <span role="cell">
+                    <span className="status-badge status-badge--pending">Not Connected</span>
+                  </span>
+                  <span role="cell">
+                    <span className="status-badge status-badge--pending">Not Connected</span>
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1107,17 +1117,17 @@ export default function App() {
             </p>
 
             <div className="roadmap-grid">
-              <div className="roadmap-step">
+              <div className="roadmap-step stagger-1">
                 <span className="step-num">PHASE 01</span>
                 <h4>Classical Baseline</h4>
                 <p>Implement ResNet-18 pipeline in <code>models/classical/</code> on standardized Sentinel-2 patches.</p>
               </div>
-              <div className="roadmap-step">
+              <div className="roadmap-step stagger-2">
                 <span className="step-num">PHASE 02</span>
                 <h4>Quantum Circuit</h4>
                 <p>Develop PennyLane variational circuit in <code>models/quantum/</code> with angle embedding & expressibility tests.</p>
               </div>
-              <div className="roadmap-step">
+              <div className="roadmap-step stagger-3">
                 <span className="step-num">PHASE 03</span>
                 <h4>Hardware Deployment</h4>
                 <p>Evaluate noise mitigation and execution on physical superconducting / ion-trap QPUs.</p>
