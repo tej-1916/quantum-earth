@@ -2182,6 +2182,855 @@ a:hover .inline-arrow {
 }
 
 /* ==========================================================================
+   LABORATORY V2 (MILESTONE A): LAB TABS, EARTH EXPLORER & QUANTUM WORKBENCH
+   ========================================================================== */
+
+/* Lab Navigation Tabs */
+.lab-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(14, 21, 34, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lab-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lab-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lab-tab-btn.is-active {
+  background: #131c2d;
+  color: var(--accent-cyan);
+  border-color: rgba(13, 242, 201, 0.3);
+  box-shadow: 0 0 16px rgba(13, 242, 201, 0.08);
+}
+
+.tab-glyph {
+  font-size: 13px;
+}
+
+.tab-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.lab-tab-btn.is-active .tab-badge {
+  background: rgba(13, 242, 201, 0.12);
+  color: var(--accent-cyan);
+}
+
+/* Earth Explorer Container */
+.explorer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+}
+
+.explorer-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #0d1421;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.explorer-select {
+  background: #080c14;
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
+}
+
+.explorer-select:focus {
+  border-color: var(--accent-cyan);
+}
+
+.date-control-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-nav-btn {
+  background: #080c14;
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.date-nav-btn:hover {
+  background: rgba(13, 242, 201, 0.1);
+  border-color: var(--accent-cyan);
+}
+
+.explorer-date-input {
+  background: #080c14;
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+  color-scheme: dark;
+}
+
+/* Preset Pills Bar */
+.explorer-presets-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(13, 20, 33, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  overflow-x: auto;
+}
+
+.presets-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.presets-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preset-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.preset-pill:hover {
+  color: var(--text-main);
+  border-color: rgba(13, 242, 201, 0.3);
+}
+
+.preset-pill.is-active {
+  background: rgba(13, 242, 201, 0.12);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+/* Map Canvas Wrapper */
+.map-view-wrapper {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  background: #05080f;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+}
+
+.leaflet-map-canvas {
+  width: 100%;
+  height: 100%;
+  background: #03060c;
+  z-index: 1;
+}
+
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+/* Leaflet Dark Customization */
+.leaflet-container {
+  font-family: var(--font-mono) !important;
+}
+
+.leaflet-bar {
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background-color: #0b111b !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-main) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #141f30 !important;
+  color: var(--accent-cyan) !important;
+}
+
+/* Map Floating HUD */
+.map-hud-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(9, 14, 23, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
+}
+
+.hud-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.drawing-banner {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 242, 201, 0.95);
+  color: #04090f;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 20px rgba(13, 242, 201, 0.4);
+  z-index: 1000;
+}
+
+.drawing-cancel-btn {
+  background: rgba(0, 0, 0, 0.2);
+  color: #04090f;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* Bottom Explorer Grid */
+.explorer-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.explorer-panel {
+  background: #0d1421;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 10px;
+}
+
+.panel-header h4 {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.telemetry-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.telemetry-tag--science {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.telemetry-tag--quantum {
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.3);
+}
+
+/* ROI Coordinates & Actions */
+.roi-bounds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #070b13;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  margin-bottom: 14px;
+}
+
+.roi-coord-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.roi-coord-label {
+  color: var(--text-dim);
+}
+
+.roi-coord-val {
+  color: var(--accent-cyan);
+}
+
+.roi-area-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.roi-area-row strong {
+  color: var(--text-main);
+}
+
+.roi-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.coord-jump-form {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jump-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.jump-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.jump-input {
+  flex: 1;
+  background: #070b13;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+}
+
+.jump-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+/* CMR Scientific Discovery Panel */
+.cmr-description {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.cmr-description strong {
+  color: #38bdf8;
+}
+
+.cmr-search-btn {
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+
+.cmr-error-box {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #fca5a5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.cmr-results-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cmr-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.cmr-badge {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.cmr-granule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.cmr-granule-item {
+  background: #080c14;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.granule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.granule-title {
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.granule-cloud {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.granule-specs {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.granule-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.granule-link {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #38bdf8;
+  text-decoration: none;
+  background: rgba(56, 189, 248, 0.08);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.granule-link:hover {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: #38bdf8;
+}
+
+.cmr-empty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 14px;
+  background: #070b13;
+  border-radius: var(--radius-sm);
+}
+
+.scientific-guarantee {
+  font-size: 11px;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 10px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   QUANTUM WORKBENCH VIEW
+   ========================================================================== */
+.quantum-workbench-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.workbench-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #0d1421;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.workbench-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workbench-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.segmented-control {
+  display: flex;
+  background: #070b13;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.segment-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.segment-btn:hover {
+  color: var(--text-main);
+}
+
+.segment-btn.is-active {
+  background: #141f31;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.circuit-canvas-card {
+  background: #090e18;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.circuit-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 14px;
+}
+
+.circuit-card-header h4 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.circuit-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.circuit-schematic-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.circuit-svg-diagram {
+  width: 100%;
+  min-width: 760px;
+  height: auto;
+}
+
+.circuit-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 18px;
+}
+
+.metric-box {
+  background: #060910;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.metric-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--text-main);
+}
+
+.metric-val.text-pending {
+  color: var(--accent-amber);
+  font-size: 14px;
+}
+
+.metric-box small {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+.workbench-status-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.status-mode-box {
+  background: #0d1421;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.mode-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+}
+
+.status-mode-box p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.scientific-notice-card {
+  background: rgba(192, 132, 252, 0.06);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.scientific-notice-card h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #c084fc;
+  margin: 0 0 8px 0;
+}
+
+.scientific-notice-card p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* Responsive adjustments for Lab V2 */
+@media (max-width: 900px) {
+  .explorer-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .circuit-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .workbench-status-card {
+    grid-template-columns: 1fr;
+  }
+
+  .map-view-wrapper {
+    height: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .map-view-wrapper {
+    height: 340px;
+  }
+
+  .explorer-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .explorer-select, .explorer-date-input {
+    width: 100%;
+  }
+
+  .circuit-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
    ACCESSIBILITY & REDUCED MOTION
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {

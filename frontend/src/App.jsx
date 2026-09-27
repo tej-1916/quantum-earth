@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import EarthExplorer from "./components/EarthExplorer";
+import QuantumWorkbench from "./components/QuantumWorkbench";
 
 // Approved project asset paths (will display when uploaded to /images/)
 const imagePaths = {
@@ -475,8 +477,12 @@ function ModelCard({ type, className = "" }) {
   );
 }
 
-// Interactive Image Lab with presets, drag-and-drop, clipboard paste, and spectral filters
+// Interactive Laboratory Hub V2: Earth Explorer, AI Analysis, and Quantum Workbench
 function Prototype() {
+  const [activeLabTab, setActiveLabTab] = useState("explorer"); // "explorer" | "ai" | "quantum"
+  const [backendTelemetry, setBackendTelemetry] = useState(null);
+  const [backendLoading, setBackendLoading] = useState(true);
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [fileMeta, setFileMeta] = useState(null);
@@ -485,6 +491,23 @@ function Prototype() {
   const [dragging, setDragging] = useState(false);
   const [spectralMode, setSpectralMode] = useState("rgb"); // rgb, cir, ndvi
   const inputRef = useRef(null);
+
+  // Poll backend status
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/models/status")
+      .then((res) => {
+        if (!res.ok) throw new Error("Status failed");
+        return res.json();
+      })
+      .then((data) => {
+        setBackendTelemetry(data);
+        setBackendLoading(false);
+      })
+      .catch(() => {
+        setBackendTelemetry(null);
+        setBackendLoading(false);
+      });
+  }, []);
 
   // Clear preview URL on unmount or file change
   useEffect(() => {
@@ -552,203 +575,267 @@ function Prototype() {
 
   return (
     <div className="lab-container">
-      {/* Sample preset selector bar */}
-      <div className="preset-bar">
-        <span className="preset-bar-title">QUICK BENCHMARK SAMPLES:</span>
-        <div className="preset-chips">
-          {sampleTiles.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              className={`preset-chip ${activePreset?.id === preset.id ? "is-active" : ""}`}
-              onClick={() => loadPreset(preset)}
-            >
-              <span className="preset-chip-dot" />
-              {preset.name}
-            </button>
-          ))}
-          {(preview || activePreset) && (
-            <button type="button" className="preset-chip preset-chip--clear" onClick={clearImage}>
-              ✕ Reset Lab
-            </button>
-          )}
-        </div>
+      {/* 3-View Laboratory Workspace Tabs */}
+      <div className="lab-tabs-bar" role="tablist" aria-label="Laboratory Workspaces">
+        <button
+          role="tab"
+          aria-selected={activeLabTab === "explorer"}
+          className={`lab-tab-btn ${activeLabTab === "explorer" ? "is-active" : ""}`}
+          onClick={() => setActiveLabTab("explorer")}
+        >
+          <span className="tab-glyph">🌐</span>
+          <span>EARTH EXPLORER</span>
+          <span className="tab-badge">NASA GIBS + CMR</span>
+        </button>
+        <button
+          role="tab"
+          aria-selected={activeLabTab === "ai"}
+          className={`lab-tab-btn ${activeLabTab === "ai" ? "is-active" : ""}`}
+          onClick={() => setActiveLabTab("ai")}
+        >
+          <span className="tab-glyph">◉</span>
+          <span>AI ANALYSIS</span>
+          <span className="tab-badge">EUROSAT L2A</span>
+        </button>
+        <button
+          role="tab"
+          aria-selected={activeLabTab === "quantum"}
+          className={`lab-tab-btn ${activeLabTab === "quantum" ? "is-active" : ""}`}
+          onClick={() => setActiveLabTab("quantum")}
+        >
+          <span className="tab-glyph">✳</span>
+          <span>QUANTUM WORKBENCH</span>
+          <span className="tab-badge">VQC SIMULATOR</span>
+        </button>
       </div>
 
-      <div className="lab-grid">
-        {/* Upload / Preview Area */}
-        <div
-          className={`upload-area ${dragging ? "is-dragging" : ""} ${preview || activePreset ? "has-preview" : ""}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            setDragging(false);
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            receiveFile(e.dataTransfer.files?.[0]);
-          }}
-          tabIndex={0}
-          role="region"
-          aria-label="Satellite imagery dropzone and preview"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              inputRef.current?.click();
-            }
-          }}
-        >
-          {preview ? (
-            <div className={`preview-wrapper spectral-filter--${spectralMode}`}>
-              <img className="upload-preview" src={preview} alt="User-selected satellite preview" />
-            </div>
-          ) : activePreset ? (
-            <div className={`preview-wrapper spectral-filter--${spectralMode}`}>
-              <div className="preset-svg-wrap">
-                <VisualSvg type={activePreset.svgType} />
-              </div>
-            </div>
-          ) : (
-            <div className="upload-orbit" aria-hidden="true">
-              <span className="orbit-glyph">＋</span>
-            </div>
-          )}
+      {/* VIEW 1: EARTH EXPLORER */}
+      {activeLabTab === "explorer" && <EarthExplorer />}
 
-          <div className="upload-copy">
-            <p className="upload-kicker">
-              {preview || activePreset ? "ORBITAL TILE LOADED" : "INPUT / SATELLITE IMAGERY"}
-            </p>
-            <h3>{preview ? fileMeta?.name : activePreset ? activePreset.name : "Drop an image of Earth."}</h3>
-            <p>
-              {preview || activePreset
-                ? "Image preview stays local in memory. No model inference has been executed."
-                : "Drag & drop a satellite image, paste from clipboard (Ctrl+V), or select a benchmark sample above."}
-            </p>
-
-            {/* Filter buttons if an image or sample is selected */}
-            {(preview || activePreset) && (
-              <div className="spectral-toggle-bar">
-                <span className="spectral-label">BAND SIMULATION:</span>
-                <div className="spectral-buttons">
-                  <button
-                    type="button"
-                    className={`spectral-btn ${spectralMode === "rgb" ? "is-active" : ""}`}
-                    onClick={() => setSpectralMode("rgb")}
-                  >
-                    RGB Natural
-                  </button>
-                  <button
-                    type="button"
-                    className={`spectral-btn ${spectralMode === "cir" ? "is-active" : ""}`}
-                    onClick={() => setSpectralMode("cir")}
-                  >
-                    CIR False Color
-                  </button>
-                  <button
-                    type="button"
-                    className={`spectral-btn ${spectralMode === "ndvi" ? "is-active" : ""}`}
-                    onClick={() => setSpectralMode("ndvi")}
-                  >
-                    NDVI Vegetation
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="upload-actions">
-              <button
-                type="button"
-                className="button button--light"
-                onClick={() => inputRef.current?.click()}
-              >
-                {preview || activePreset ? "Change local image" : "Choose local image"} <Arrow diagonal />
-              </button>
+      {/* VIEW 2: AI ANALYSIS */}
+      {activeLabTab === "ai" && (
+        <div className="ai-analysis-workspace">
+          {/* Sample preset selector bar */}
+          <div className="preset-bar">
+            <span className="preset-bar-title">QUICK BENCHMARK SAMPLES:</span>
+            <div className="preset-chips">
+              {sampleTiles.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`preset-chip ${activePreset?.id === preset.id ? "is-active" : ""}`}
+                  onClick={() => loadPreset(preset)}
+                >
+                  <span className="preset-chip-dot" />
+                  {preset.name}
+                </button>
+              ))}
               {(preview || activePreset) && (
-                <button type="button" className="button button--outline" onClick={clearImage}>
-                  Remove
+                <button type="button" className="preset-chip preset-chip--clear" onClick={clearImage}>
+                  ✕ Reset Lab
                 </button>
               )}
             </div>
+          </div>
 
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              aria-label="Choose a satellite image from file system"
-              hidden
-              onChange={(e) => {
-                receiveFile(e.target.files?.[0]);
-                e.target.value = "";
+          <div className="lab-grid">
+            {/* Upload / Preview Area */}
+            <div
+              className={`upload-area ${dragging ? "is-dragging" : ""} ${preview || activePreset ? "has-preview" : ""}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
               }}
-            />
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setDragging(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                receiveFile(e.dataTransfer.files?.[0]);
+              }}
+              tabIndex={0}
+              role="region"
+              aria-label="Satellite imagery dropzone and preview"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  inputRef.current?.click();
+                }
+              }}
+            >
+              {preview ? (
+                <div className={`preview-wrapper spectral-filter--${spectralMode}`}>
+                  <img className="upload-preview" src={preview} alt="User-selected satellite preview" />
+                </div>
+              ) : activePreset ? (
+                <div className={`preview-wrapper spectral-filter--${spectralMode}`}>
+                  <div className="preset-svg-wrap">
+                    <VisualSvg type={activePreset.svgType} />
+                  </div>
+                </div>
+              ) : (
+                <div className="upload-orbit" aria-hidden="true">
+                  <span className="orbit-glyph">＋</span>
+                </div>
+              )}
 
-            {error && (
-              <p className="file-error" role="alert">
-                ⚠️ {error}
-              </p>
-            )}
+              <div className="upload-copy">
+                <p className="upload-kicker">
+                  {preview || activePreset ? "ORBITAL TILE LOADED" : "INPUT / SATELLITE IMAGERY"}
+                </p>
+                <h3>{preview ? fileMeta?.name : activePreset ? activePreset.name : "Drop an image of Earth."}</h3>
+                <p>
+                  {preview || activePreset
+                    ? "Image preview stays local in memory. No model inference has been executed."
+                    : "Drag & drop a satellite image, paste from clipboard (Ctrl+V), or select a benchmark sample above."}
+                </p>
 
-            {fileMeta && (
-              <div className="file-meta-box">
-                <div><span>File:</span> <strong>{fileMeta.name}</strong></div>
-                <div><span>Size:</span> <strong>{fileMeta.size}</strong></div>
-                <div><span>Type:</span> <strong>{fileMeta.type}</strong></div>
+                {/* Filter buttons if an image or sample is selected */}
+                {(preview || activePreset) && (
+                  <div className="spectral-toggle-bar">
+                    <span className="spectral-label">BAND SIMULATION:</span>
+                    <div className="spectral-buttons">
+                      <button
+                        type="button"
+                        className={`spectral-btn ${spectralMode === "rgb" ? "is-active" : ""}`}
+                        onClick={() => setSpectralMode("rgb")}
+                      >
+                        RGB Natural
+                      </button>
+                      <button
+                        type="button"
+                        className={`spectral-btn ${spectralMode === "cir" ? "is-active" : ""}`}
+                        onClick={() => setSpectralMode("cir")}
+                      >
+                        CIR False Color
+                      </button>
+                      <button
+                        type="button"
+                        className={`spectral-btn ${spectralMode === "ndvi" ? "is-active" : ""}`}
+                        onClick={() => setSpectralMode("ndvi")}
+                      >
+                        NDVI Vegetation
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="upload-actions">
+                  <button
+                    type="button"
+                    className="button button--light"
+                    onClick={() => inputRef.current?.click()}
+                  >
+                    {preview || activePreset ? "Change local image" : "Choose local image"} <Arrow diagonal />
+                  </button>
+                  {(preview || activePreset) && (
+                    <button type="button" className="button button--outline" onClick={clearImage}>
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  aria-label="Choose a satellite image from file system"
+                  hidden
+                  onChange={(e) => {
+                    receiveFile(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+
+                {error && (
+                  <p className="file-error" role="alert">
+                    ⚠️ {error}
+                  </p>
+                )}
+
+                {fileMeta && (
+                  <div className="file-meta-box">
+                    <div><span>File:</span> <strong>{fileMeta.name}</strong></div>
+                    <div><span>Size:</span> <strong>{fileMeta.size}</strong></div>
+                    <div><span>Type:</span> <strong>{fileMeta.type}</strong></div>
+                  </div>
+                )}
+
+                <p className="upload-note">Supports PNG, JPEG, WebP · Up to 10 MB · Client-side preview only</p>
               </div>
-            )}
+            </div>
 
-            <p className="upload-note">Supports PNG, JPEG, WebP · Up to 10 MB · Client-side preview only</p>
+            {/* Results / Status Area */}
+            <div className="results-area">
+              <div className="results-top">
+                <span className="results-badge">MODEL PIPELINE TELEMETRY</span>
+                <span className={`live-tag ${backendTelemetry ? "live-tag--online" : "live-tag--offline"}`}>
+                  {backendTelemetry ? "BACKEND CONNECTED" : "OFFLINE PROTOTYPE"}
+                </span>
+              </div>
+
+              <div className="result-row">
+                <div className="result-symbol result-symbol--classical">◉</div>
+                <div className="result-content">
+                  <p className="result-title">CLASSICAL MODEL (RESNET-18 RGB)</p>
+                  <div className="result-status-row">
+                    <span className={`status-dot ${backendTelemetry?.models?.classical_resnet18_rgb?.available ? "status-dot--connected" : "status-dot--pending"}`} />
+                    <strong className="status-text">
+                      {backendTelemetry?.models?.classical_resnet18_rgb?.status === "connected" ? "Connected" : "Not connected"}
+                    </strong>
+                  </div>
+                  <small className="result-hint">
+                    {backendTelemetry?.models?.classical_resnet18_rgb?.reason || "Awaiting trained weights from Milestone B. Classification output will appear upon verified checkpoint loading."}
+                  </small>
+                </div>
+                <span className="result-arrow">↗</span>
+              </div>
+
+              <div className="result-row">
+                <div className="result-symbol result-symbol--classical">▦</div>
+                <div className="result-content">
+                  <p className="result-title">MULTISPECTRAL RESNET-18 (13 BANDS)</p>
+                  <div className="result-status-row">
+                    <span className="status-dot status-dot--pending" />
+                    <strong className="status-text">Not connected</strong>
+                  </div>
+                  <small className="result-hint">
+                    Sentinel-2 L2A 13-band surface reflectance network. Separate pipeline from RGB baseline.
+                  </small>
+                </div>
+                <span className="result-arrow">↗</span>
+              </div>
+
+              <div className="result-row">
+                <div className="result-symbol result-symbol--quantum">✳</div>
+                <div className="result-content">
+                  <p className="result-title">HYBRID QUANTUM MODEL (HQNN / VQC)</p>
+                  <div className="result-status-row">
+                    <span className="status-dot status-dot--pending" />
+                    <strong className="status-text">Not connected</strong>
+                  </div>
+                  <small className="result-hint">
+                    Awaiting quantum circuit simulator engine from Milestone C. Quantum state expectations will be evaluated without fabricated speedup claims.
+                  </small>
+                </div>
+                <span className="result-arrow">↗</span>
+              </div>
+
+              <div className="integrity-box">
+                <h4>🔬 Research Integrity Guarantee</h4>
+                <p>
+                  No predictions, class probabilities, accuracy percentages, or processing latencies are fabricated or mocked in this interface. Both classical and quantum models will be evaluated rigorously against an identical, documented benchmark test split.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Results / Status Area */}
-        <div className="results-area">
-          <div className="results-top">
-            <span className="results-badge">MODEL PIPELINE TELEMETRY</span>
-            <span className="live-tag live-tag--offline">OFFLINE PROTOTYPE</span>
-          </div>
-
-          <div className="result-row">
-            <div className="result-symbol result-symbol--classical">◉</div>
-            <div className="result-content">
-              <p className="result-title">CLASSICAL MODEL (RESNET-18)</p>
-              <div className="result-status-row">
-                <span className="status-dot status-dot--pending" />
-                <strong className="status-text">Not connected</strong>
-              </div>
-              <small className="result-hint">
-                Awaiting trained weights from <code>models/classical/</code>. Classification output and feature map activations will appear here upon backend verification.
-              </small>
-            </div>
-            <span className="result-arrow">↗</span>
-          </div>
-
-          <div className="result-row">
-            <div className="result-symbol result-symbol--quantum">✳</div>
-            <div className="result-content">
-              <p className="result-title">HYBRID QUANTUM MODEL (HQNN / VQC)</p>
-              <div className="result-status-row">
-                <span className="status-dot status-dot--pending" />
-                <strong className="status-text">Not connected</strong>
-              </div>
-              <small className="result-hint">
-                Awaiting quantum circuit backend from <code>models/quantum/</code>. Quantum state expectations and entangled spectral probabilities will be computed on verified hardware/simulator.
-              </small>
-            </div>
-            <span className="result-arrow">↗</span>
-          </div>
-
-          <div className="integrity-box">
-            <h4>🔬 Research Integrity Guarantee</h4>
-            <p>
-              No predictions, class probabilities, accuracy percentages, or processing latencies are fabricated or mocked in this interface. Both classical and quantum models will be evaluated rigorously against an identical, documented benchmark test split.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* VIEW 3: QUANTUM WORKBENCH */}
+      {activeLabTab === "quantum" && <QuantumWorkbench />}
     </div>
   );
 }
@@ -1087,14 +1174,14 @@ export default function App() {
         <section id="lab" className="section lab">
           <div className="container">
             <SectionHeading
-              eyebrow="05 / INTERACTIVE LAB"
+              eyebrow="05 / RESEARCH LABORATORY V2"
               title={
                 <>
-                  Your view from orbit.<br />
-                  <em>Our next experiment.</em>
+                  Planetary Observation<br />
+                  <em>& Quantum Intelligence.</em>
                 </>
               }
-              body="Test client-side satellite tile inspection and band previews below. Real model inference will activate as soon as classical and quantum training checkpoints are integrated."
+              body="An interactive multi-space research laboratory. Explore live NASA Earthdata GIBS satellite imagery, discover 13-band Level-2A scientific data products via NASA CMR, inspect reproducible EuroSAT deep neural networks, and simulate parameterized quantum circuits."
             />
 
             <Prototype />
