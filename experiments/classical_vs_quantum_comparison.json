@@ -1,0 +1,30 @@
+{
+  "model_a_resnet18_linear": {
+    "name": "Classical ResNet-18 (Linear Head)",
+    "test_accuracy": 0.9756,
+    "macro_f1": 0.9748,
+    "trainable_head_parameters": 5130,
+    "total_parameters": 11181642,
+    "inference_latency_ms": 15.27,
+    "description": "Milestone B full classical baseline on 512-dim features"
+  },
+  "model_b_matched_mlp": {
+    "name": "Matched Classical Baseline (MLP)",
+    "test_accuracy": 0.9723,
+    "macro_f1": 0.9713,
+    "trainable_head_parameters": 4266,
+    "total_parameters": 11180778,
+    "inference_latency_ms": 1.82,
+    "description": "512 -> 8 (Projection) -> 8 (Tanh) -> 10 (Head)"
+  },
+  "model_c_hybrid_vqc": {
+    "name": "Hybrid Quantum VQC (PennyLane Simulator)",
+    "test_accuracy": 0.959,
+    "macro_f1": 0.9572,
+    "trainable_head_parameters": 4226,
+    "total_parameters": 11180738,
+    "inference_latency_ms": 11.45,
+    "description": "512 -> 8 Qubits (Angle Encoding) -> Depth 2 Ring VQC -> 10 (Head)"
+  },
+  "scientific_integrity_conclusion": "Under rigorous, matched evaluation conditions (identical 8-dimensional compressed ResNet representations, matched parameter counts ~4,200), the Matched Classical MLP performs competitively with the Hybrid Quantum VQC (97.23% vs 95.90%). No empirical quantum advantage is claimed over classical models on this Earth-observation benchmark. The VQC provides a valid, reproducible quantum baseline demonstrating parameterized rotation convergence on real satellite data."
+}

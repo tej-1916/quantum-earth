@@ -1,0 +1,54 @@
+{
+  "model_architecture": "MatchedEuroSATMLP",
+  "latent_dim": 8,
+  "total_test_samples": 4050,
+  "metrics": {
+    "overall_accuracy": 0.9723,
+    "macro_precision": 0.9716,
+    "macro_recall": 0.9711,
+    "macro_f1_score": 0.9713,
+    "weighted_precision": 0.9725,
+    "weighted_recall": 0.9723,
+    "weighted_f1_score": 0.9724
+  },
+  "training_time_seconds": 3.2,
+  "best_epoch": 4,
+  "best_val_accuracy": 0.9709,
+  "parameter_counts": {
+    "projection_parameters": 4104,
+    "hidden_parameters": 72,
+    "classifier_head_parameters": 90,
+    "total_trainable_parameters": 4266,
+    "frozen_backbone_parameters": 11176512
+  },
+  "history": {
+    "train_loss": [
+      0.6125,
+      0.3738,
+      0.3594,
+      0.3504,
+      0.3435
+    ],
+    "train_acc": [
+      0.9615,
+      0.9782,
+      0.9811,
+      0.9822,
+      0.9855
+    ],
+    "val_loss": [
+      0.4249,
+      0.4042,
+      0.3987,
+      0.3944,
+      0.391
+    ],
+    "val_acc": [
+      0.9677,
+      0.9694,
+      0.9694,
+      0.9709,
+      0.9709
+    ]
+  }
+}
