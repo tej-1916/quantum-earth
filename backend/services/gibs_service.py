@@ -8,6 +8,7 @@ not as calibrated 13-band surface reflectance inputs for scientific ML models.
 
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional
+import httpx
 from pydantic import BaseModel
 
 
@@ -134,6 +135,43 @@ class GIBSService:
         if not layer:
             return None
         return layer.wmts_endpoint.replace("{time}", date_str)
+
+    @classmethod
+    async def geocode_place(cls, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """Geocodes a place name query using standard geocoding service."""
+        if not query or len(query.strip()) < 2:
+            return []
+        url = "https://nominatim.openstreetmap.org/search"
+        params = {"q": query.strip(), "format": "json", "limit": min(limit, 10)}
+        headers = {"User-Agent": "QuantumEarthLab/2.0 (Scientific Research Client)"}
+        try:
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                res = await client.get(url, params=params, headers=headers)
+                if res.status_code != 200:
+                    return []
+                items = res.json()
+                results = []
+                for it in items:
+                    bbox = it.get("boundingbox", [])
+                    parsed_bbox = None
+                    if len(bbox) == 4:
+                        parsed_bbox = {
+                            "south": float(bbox[0]),
+                            "north": float(bbox[1]),
+                            "west": float(bbox[2]),
+                            "east": float(bbox[3]),
+                        }
+                    results.append({
+                        "name": it.get("name") or it.get("display_name", "").split(",")[0],
+                        "display_name": it.get("display_name", ""),
+                        "lat": float(it["lat"]),
+                        "lng": float(it["lon"]),
+                        "type": it.get("type", "location"),
+                        "boundingbox": parsed_bbox,
+                    })
+                return results
+        except Exception:
+            return []
 
 
 gibs_service = GIBSService()

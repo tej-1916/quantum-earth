@@ -2330,6 +2330,87 @@ a:hover .inline-arrow {
   color-scheme: dark;
 }
 
+/* Search by Place Name Bar */
+.explorer-search-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(13, 20, 33, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.place-search-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.place-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.place-search-input {
+  flex: 1;
+  background: #080c14;
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+}
+
+.place-search-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.place-search-error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #fca5a5;
+  margin: 0;
+}
+
+.place-results-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.results-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.place-match-pill {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.place-match-pill:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+}
+
 /* Preset Pills Bar */
 .explorer-presets-bar {
   display: flex;
@@ -2601,7 +2682,70 @@ a:hover .inline-arrow {
 .roi-actions-row {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 20px;
+}
+
+.send-ai-btn {
+  background: rgba(13, 242, 201, 0.15) !important;
+  color: var(--accent-cyan) !important;
+  border-color: rgba(13, 242, 201, 0.4) !important;
+}
+
+.send-ai-btn:hover {
+  background: var(--accent-cyan) !important;
+  color: #04090f !important;
+}
+
+.staged-alert {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-cyan);
+  background: rgba(13, 242, 201, 0.08);
+  border: 1px solid rgba(13, 242, 201, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+}
+
+.staged-roi-alert-card {
+  background: rgba(13, 242, 201, 0.05);
+  border: 1px solid rgba(13, 242, 201, 0.25);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.staged-roi-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.staged-roi-meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.staged-roi-meta span {
+  color: var(--text-dim);
+  font-size: 10.5px;
+}
+
+.staged-roi-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 0;
 }
 
 .coord-jump-form {

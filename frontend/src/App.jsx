@@ -482,6 +482,7 @@ function Prototype() {
   const [activeLabTab, setActiveLabTab] = useState("explorer"); // "explorer" | "ai" | "quantum"
   const [backendTelemetry, setBackendTelemetry] = useState(null);
   const [backendLoading, setBackendLoading] = useState(true);
+  const [stagedRoi, setStagedRoi] = useState(null);
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
@@ -569,9 +570,32 @@ function Prototype() {
     setFile(null);
     setPreview("");
     setActivePreset(null);
+    setStagedRoi(null);
     setError("");
     setFileMeta(null);
   }
+
+  const handleSendRoiToAi = useCallback((roiData) => {
+    setStagedRoi(roiData);
+    setActiveLabTab("ai");
+    setFile(null);
+    setPreview("");
+    setActivePreset({
+      id: roiData.id,
+      name: roiData.name,
+      category: roiData.category,
+      specs: roiData.specs,
+      description: roiData.description,
+      svgType: roiData.svgType,
+      roiData: roiData,
+    });
+    setFileMeta({
+      name: roiData.name,
+      size: `${roiData.areaKm2.toLocaleString()} km² Surface ROI`,
+      type: roiData.specs,
+      source: `${roiData.source} (Acquisition: ${roiData.date})`,
+    });
+  }, []);
 
   return (
     <div className="lab-container">
@@ -595,7 +619,7 @@ function Prototype() {
         >
           <span className="tab-glyph">◉</span>
           <span>AI ANALYSIS</span>
-          <span className="tab-badge">EUROSAT L2A</span>
+          <span className="tab-badge">{stagedRoi ? "ROI STAGED" : "EUROSAT L2A"}</span>
         </button>
         <button
           role="tab"
@@ -610,11 +634,28 @@ function Prototype() {
       </div>
 
       {/* VIEW 1: EARTH EXPLORER */}
-      {activeLabTab === "explorer" && <EarthExplorer />}
+      {activeLabTab === "explorer" && <EarthExplorer onSendToAi={handleSendRoiToAi} />}
 
       {/* VIEW 2: AI ANALYSIS */}
       {activeLabTab === "ai" && (
         <div className="ai-analysis-workspace">
+          {stagedRoi && (
+            <div className="staged-roi-alert-card">
+              <div className="staged-roi-badge">
+                <span className="hud-dot" />
+                <span>ORBITAL ROI IMPORTED FROM EARTH EXPLORER</span>
+              </div>
+              <div className="staged-roi-meta">
+                <strong>{stagedRoi.name}</strong> · {stagedRoi.specs}
+                <br />
+                <span>Bounding Box: [{stagedRoi.roiBox.west}° W, {stagedRoi.roiBox.south}° S, {stagedRoi.roiBox.east}° E, {stagedRoi.roiBox.north}° N] · {stagedRoi.areaKm2.toLocaleString()} km²</span>
+              </div>
+              <p className="staged-roi-hint">
+                Footprint staged for future EuroSAT physical neural network evaluation in Milestone B.
+              </p>
+            </div>
+          )}
+
           {/* Sample preset selector bar */}
           <div className="preset-bar">
             <span className="preset-bar-title">QUICK BENCHMARK SAMPLES:</span>

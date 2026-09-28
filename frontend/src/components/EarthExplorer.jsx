@@ -88,7 +88,7 @@ function calculateBBoxAreaKm2(west, south, east, north) {
   return Math.round(area);
 }
 
-export default function EarthExplorer() {
+export default function EarthExplorer({ onSendToAi }) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const gibsTileLayerRef = useRef(null);
@@ -98,7 +98,13 @@ export default function EarthExplorer() {
   const [selectedDate, setSelectedDate] = useState(getYesterdayDateStr());
   const [activePreset, setActivePreset] = useState(LOCATION_PRESETS[0].name);
 
-  // Manual coordinate jump
+  // Manual place and coordinate search
+  const [placeSearchQuery, setPlaceSearchQuery] = useState("");
+  const [isSearchingPlace, setIsSearchingPlace] = useState(false);
+  const [placeSearchResults, setPlaceSearchResults] = useState([]);
+  const [placeSearchError, setPlaceSearchError] = useState("");
+  const [stagedNotification, setStagedNotification] = useState(false);
+
   const [inputLat, setInputLat] = useState("35.25");
   const [inputLng, setInputLng] = useState("-75.52");
 
@@ -305,6 +311,85 @@ export default function EarthExplorer() {
     }
   };
 
+  // Handle Place Name Search via Backend Geocoding API
+  const handlePlaceSearch = async (e) => {
+    if (e) e.preventDefault();
+    const query = placeSearchQuery.trim();
+    if (!query || query.length < 2) return;
+
+    setIsSearchingPlace(true);
+    setPlaceSearchError("");
+    setPlaceSearchResults([]);
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/gibs/geocode?q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        setPlaceSearchResults(data.results);
+        handleSelectPlaceResult(data.results[0]);
+      } else {
+        setPlaceSearchError(`No coordinates found for "${query}". Try another location.`);
+      }
+    } catch (err) {
+      setPlaceSearchError("Geocoding service unavailable. You can use coordinate jump below.");
+    } finally {
+      setIsSearchingPlace(false);
+    }
+  };
+
+  const handleSelectPlaceResult = (place) => {
+    setActivePreset(place.name);
+    setInputLat(place.lat.toFixed(4));
+    setInputLng(place.lng.toFixed(4));
+
+    if (mapRef.current) {
+      mapRef.current.flyTo([place.lat, place.lng], 7, { duration: 1.2 });
+    }
+
+    if (place.boundingbox) {
+      setRoiBox({
+        west: Number(place.boundingbox.west.toFixed(4)),
+        south: Number(place.boundingbox.south.toFixed(4)),
+        east: Number(place.boundingbox.east.toFixed(4)),
+        north: Number(place.boundingbox.north.toFixed(4)),
+      });
+    } else {
+      setRoiBox({
+        west: Number((place.lng - 0.8).toFixed(4)),
+        south: Number((place.lat - 0.6).toFixed(4)),
+        east: Number((place.lng + 0.8).toFixed(4)),
+        north: Number((place.lat + 0.6).toFixed(4)),
+      });
+    }
+  };
+
+  // Send ROI to future AI Analysis pipeline (Requirement 10)
+  const handleSendToAi = () => {
+    const payload = {
+      id: `roi-${Date.now()}`,
+      name: `Orbital ROI (${activePreset || `${roiBox.north.toFixed(2)}°N, ${roiBox.west.toFixed(2)}°W`})`,
+      specs: `${activeLayer.name} · ${activeLayer.res} GSD · Acquired: ${selectedDate}`,
+      description: `Bounding Box: [${roiBox.west}°W, ${roiBox.south}°S, ${roiBox.east}°E, ${roiBox.north}°N] · Area: ${calculatedArea.toLocaleString()} km²`,
+      category: "Earth Explorer Observation",
+      source: `${activeLayer.satellite} / ${activeLayer.sensor}`,
+      date: selectedDate,
+      layerId: activeLayer.id,
+      layerName: activeLayer.name,
+      roiBox: { ...roiBox },
+      areaKm2: calculatedArea,
+      svgType: activeLayer.type === "false_color" ? "farm" : "coast",
+      isStagedRoi: true,
+    };
+
+    setStagedNotification(true);
+    setTimeout(() => setStagedNotification(false), 2500);
+
+    if (onSendToAi) {
+      onSendToAi(payload);
+    }
+  };
+
   // Adjust date +/- 1 day
   const adjustDate = (days) => {
     const d = new Date(selectedDate);
@@ -474,6 +559,50 @@ export default function EarthExplorer() {
         </div>
       </div>
 
+      {/* Search by Place Name Bar */}
+      <div className="explorer-search-bar">
+        <form className="place-search-form" onSubmit={handlePlaceSearch}>
+          <label htmlFor="place-search-input" className="toolbar-label">
+            SEARCH PLACE:
+          </label>
+          <div className="place-input-wrap">
+            <input
+              id="place-search-input"
+              type="text"
+              className="place-search-input"
+              placeholder="Search place name (e.g. Cairo, Tokyo, Grand Canyon, Sahara, Paris)..."
+              value={placeSearchQuery}
+              onChange={(e) => setPlaceSearchQuery(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="button button--sm button--light"
+              disabled={isSearchingPlace}
+            >
+              {isSearchingPlace ? "Searching..." : "Search Place 🔍"}
+            </button>
+          </div>
+        </form>
+
+        {placeSearchError && <p className="place-search-error">{placeSearchError}</p>}
+
+        {placeSearchResults.length > 1 && (
+          <div className="place-results-pills">
+            <span className="results-label">MATCHES:</span>
+            {placeSearchResults.map((p, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="place-match-pill"
+                onClick={() => handleSelectPlaceResult(p)}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Preset Location Quick Pills */}
       <div className="explorer-presets-bar">
         <span className="presets-label">OBSERVATION PRESETS:</span>
@@ -572,7 +701,21 @@ export default function EarthExplorer() {
             >
               {copiedGeoJson ? "✓ Copied to Clipboard" : "Copy GeoJSON"}
             </button>
+            <button
+              type="button"
+              className="button button--sm button--light send-ai-btn"
+              onClick={handleSendToAi}
+              title="Stage selected region for future AI Analysis pipeline"
+            >
+              Send to AI Analysis Pipeline →
+            </button>
           </div>
+
+          {stagedNotification && (
+            <div className="staged-alert" role="status">
+              ✓ Region of interest staged into AI Analysis pipeline!
+            </div>
+          )}
 
           {/* Coordinate Search Form */}
           <form className="coord-jump-form" onSubmit={handleCoordinateJump}>

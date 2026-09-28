@@ -37,3 +37,11 @@ async def get_gibs_layer(layer_id: str, date: str = Query(None, description="Dat
     data["selected_date"] = use_date
     data["tile_url"] = gibs_service.build_tile_url(layer_id, use_date)
     return {"success": True, "layer": data}
+
+
+@router.get("/geocode")
+async def geocode_location(q: str = Query(..., min_length=2, description="Place or geographical query string")):
+    """Geocodes a place name query to latitude/longitude coordinates and bounding box."""
+    places = await gibs_service.geocode_place(q)
+    return {"success": True, "query": q, "count": len(places), "results": places}
+

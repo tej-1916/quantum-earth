@@ -66,6 +66,15 @@ def test_gibs_layer_detail_and_404():
     assert err_response.status_code == 404
 
 
+def test_gibs_geocode_endpoint():
+    response = client.get("/api/gibs/geocode?q=Cairo")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "results" in data
+
+
+
 def test_cmr_bbox_validation():
     # Invalid bounding box: west > east
     resp = client.get("/api/cmr/search?west=10&east=5&south=0&north=20")
