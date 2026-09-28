@@ -11,6 +11,7 @@ Tests cover:
 """
 
 import pytest
+from pathlib import Path
 from fastapi.testclient import TestClient
 import torch
 
@@ -149,29 +150,73 @@ def test_eurosat_zero_data_leakage_splits():
     assert manifest["manifest_hash"] == manifest2["manifest_hash"]
 
 
-def test_model_status_honest_unconnected():
+def test_model_status_honest():
     response = client.get("/api/models/status")
     assert response.status_code == 200
     data = response.json()
     assert data["research_integrity"]["fabricated_metrics"] is False
 
     models = data["models"]
-    assert models["classical_resnet18_rgb"]["status"] == "not_connected"
+    # Multispectral and Quantum must remain strictly not_connected
     assert models["classical_resnet18_multispectral"]["status"] == "not_connected"
     assert models["hybrid_quantum_vqc"]["status"] == "not_connected"
 
+    # Classical RGB should report honest status matching disk weights
+    assert models["classical_resnet18_rgb"]["status"] in ["connected", "not_connected"]
+    if models["classical_resnet18_rgb"]["status"] == "connected":
+        assert models["classical_resnet18_rgb"]["available"] is True
+        assert "checkpoint_metadata" in models["classical_resnet18_rgb"]
 
-def test_inference_refusal_when_unconnected():
-    # Post a dummy image file when model is not connected
-    file_content = b"fake image bytes"
-    files = {"file": ("tile.png", file_content, "image/png")}
-    response = client.post("/api/models/predict", files=files)
 
-    # Must return HTTP 503 with honest error explanation, never fake predictions
-    assert response.status_code == 503
-    err_detail = response.json()["detail"]
-    assert err_detail["error"] == "MODEL_NOT_CONNECTED"
-    assert "no simulated or fabricated predictions are returned" in err_detail["message"]
+def test_eurosat_sample_image_endpoint():
+    response = client.get("/api/dataset/eurosat/sample-image?class_name=Forest&index=1")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/jpeg"
+    assert response.headers["x-eurosat-class"] == "Forest"
+    assert len(response.content) > 0
+
+
+def test_classical_predict_real_image():
+    # Load an authentic EuroSAT image from disk
+    sample_path = Path("data/eurosat/2750/Forest/Forest_1.jpg")
+    if not sample_path.exists():
+        pytest.skip("EuroSAT dataset not yet downloaded to disk")
+
+    with open(sample_path, "rb") as f:
+        img_bytes = f.read()
+
+    files = {"file": ("Forest_1.jpg", img_bytes, "image/jpeg")}
+    response = client.post("/api/models/classical/predict", files=files)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+
+    inf = data["inference"]
+    assert "predicted_class" in inf
+    assert "confidence" in inf
+    assert 0.0 <= inf["confidence"] <= 1.0
+    assert "all_probabilities" in inf
+    assert len(inf["all_probabilities"]) == 10
+    assert "inference_runtime_ms" in inf
+    assert inf["inference_runtime_ms"] > 0
+    assert inf["execution_device"] == "cpu"
+    assert inf["model_version"] == "ResNet-18 (EuroSAT RGB v1.0)"
+
+
+def test_classical_predict_base64_payload():
+    import base64
+    sample_path = Path("data/eurosat/2750/AnnualCrop/AnnualCrop_1.jpg")
+    if not sample_path.exists():
+        pytest.skip("EuroSAT dataset not on disk")
+
+    with open(sample_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("utf-8")
+
+    response = client.post("/api/models/classical/predict", json={"image_base64": f"data:image/jpeg;base64,{b64}"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "predicted_class" in data["inference"]
 
 
 def test_pytorch_architectures_instantiation():
@@ -191,3 +236,31 @@ def test_pytorch_architectures_instantiation():
     hybrid_model = HybridQuantumModelPlaceholder(num_classes=10, num_qubits=8)
     out_hybrid = hybrid_model(dummy_rgb)
     assert out_hybrid.shape == (2, 10)
+
+
+def test_classical_metrics_endpoint():
+    response = client.get("/api/models/classical/metrics")
+    assert response.status_code == 200
+    data = response.json()
+    assert "metrics" in data
+    assert "dataset" in data
+    assert data["dataset"] == "EuroSAT RGB"
+    if data.get("available"):
+        assert "overall_accuracy" in data["metrics"]
+        assert data["metrics"]["overall_accuracy"] > 0.90
+        assert "per_class" in data
+        assert len(data["per_class"]) == 10
+        assert "confusion_matrix" in data
+
+
+def test_classical_history_endpoint():
+    response = client.get("/api/models/classical/history")
+    assert response.status_code == 200
+    data = response.json()
+    assert "architecture" in data
+    if data.get("available"):
+        assert "best_val_accuracy" in data
+        assert "history" in data
+        assert "train_loss" in data["history"]
+
+

@@ -42,6 +42,7 @@ htmlcov/
 
 # Large Datasets & Model Checkpoints
 data/
+checkpoints/
 *.h5
 *.pt
 *.pth

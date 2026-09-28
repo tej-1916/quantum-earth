@@ -70,3 +70,38 @@ async def get_split_manifest(
             "test_sample": manifest["splits"]["test"][:5],
         },
     }
+
+
+@router.get("/sample-image")
+async def get_sample_image(
+    class_name: str = Query("Forest", pattern="^(AnnualCrop|Forest|HerbaceousVegetation|Highway|Industrial|Pasture|PermanentCrop|Residential|River|SeaLake)$"),
+    index: int = Query(1, ge=1, le=3000),
+):
+    """Returns an authentic 64x64 EuroSAT satellite image patch for testing and benchmark evaluation."""
+    from fastapi import HTTPException
+    from fastapi.responses import FileResponse
+    from backend.core.config import settings
+    import os
+
+    data_dir = settings.BASE_DIR / "data" / "eurosat" / "2750" / class_name
+    if not data_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Class directory not found for {class_name}")
+
+    files = sorted([f for f in os.listdir(data_dir) if f.lower().endswith((".jpg", ".png"))])
+    if not files:
+        raise HTTPException(status_code=404, detail=f"No images found for class {class_name}")
+
+    chosen_file = files[(index - 1) % len(files)]
+    file_path = data_dir / chosen_file
+
+    return FileResponse(
+        str(file_path),
+        media_type="image/jpeg",
+        filename=chosen_file,
+        headers={
+            "X-EuroSAT-Class": class_name,
+            "X-EuroSAT-File": chosen_file,
+            "X-EuroSAT-Resolution": "64x64",
+        },
+    )
+

@@ -12,6 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings:
+    BASE_DIR: Path = BASE_DIR
     PROJECT_NAME: str = "Quantum Earth Lab API"
     VERSION: str = "2.0.0-alpha"
     DESCRIPTION: str = (
