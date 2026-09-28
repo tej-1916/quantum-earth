@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from backend.core.config import settings
-from backend.api import health, gibs, cmr, dataset, models
+from backend.api import health, gibs, cmr, dataset, models, quantum
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -45,6 +45,8 @@ app.include_router(gibs.router, prefix="/api")
 app.include_router(cmr.router, prefix="/api")
 app.include_router(dataset.router, prefix="/api")
 app.include_router(models.router, prefix="/api")
+app.include_router(quantum.router, prefix="/api/models/quantum")
+app.include_router(quantum.router, prefix="/api/quantum")
 
 
 @app.get("/")

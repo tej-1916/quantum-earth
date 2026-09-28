@@ -647,7 +647,7 @@ function Prototype() {
       )}
 
       {/* VIEW 3: QUANTUM WORKBENCH */}
-      {activeLabTab === "quantum" && <QuantumWorkbench />}
+      {activeLabTab === "quantum" && <QuantumWorkbench backendTelemetry={backendTelemetry} />}
     </div>
   );
 }

@@ -157,11 +157,15 @@ def test_model_status_honest():
     assert data["research_integrity"]["fabricated_metrics"] is False
 
     models = data["models"]
-    # Multispectral and Quantum must remain strictly not_connected
+    # Multispectral must remain strictly not_connected
     assert models["classical_resnet18_multispectral"]["status"] == "not_connected"
-    assert models["hybrid_quantum_vqc"]["status"] == "not_connected"
 
-    # Classical RGB should report honest status matching disk weights
+    # Hybrid Quantum VQC and Classical RGB should report honest status matching disk weights
+    assert models["hybrid_quantum_vqc"]["status"] in ["connected", "not_connected"]
+    if models["hybrid_quantum_vqc"]["status"] == "connected":
+        assert models["hybrid_quantum_vqc"]["available"] is True
+        assert models["hybrid_quantum_vqc"]["qubits"] == 8
+
     assert models["classical_resnet18_rgb"]["status"] in ["connected", "not_connected"]
     if models["classical_resnet18_rgb"]["status"] == "connected":
         assert models["classical_resnet18_rgb"]["available"] is True
@@ -262,5 +266,90 @@ def test_classical_history_endpoint():
         assert "best_val_accuracy" in data
         assert "history" in data
         assert "train_loss" in data["history"]
+
+
+def test_quantum_status_endpoint():
+    response = client.get("/api/models/quantum/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "connected"
+    assert data["available"] is True
+    assert "default.qubit" in data["engine"]
+    assert data["circuit_metadata"]["n_qubits"] == 8
+    assert data["circuit_metadata"]["depth"] == 2
+    assert data["circuit_metadata"]["entanglement"] == "ring"
+
+
+def test_quantum_circuit_endpoint():
+    response = client.get("/api/models/quantum/circuit?qubits=8&depth=2&entanglement=ring&encoding=angle")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    circuit = data["circuit"]
+    assert circuit["n_qubits"] == 8
+    assert circuit["depth"] == 2
+    assert circuit["entanglement"] == "ring"
+    assert "ascii_diagram" in circuit
+    assert "qasm" in circuit
+    assert "OPENQASM" in circuit["qasm"]
+
+
+def test_quantum_experiments_endpoint():
+    response = client.get("/api/models/quantum/experiments")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    exp = data["experiments"]
+    assert "comparison" in exp
+    assert "test_metrics" in exp
+    assert "ablations" in exp
+    assert exp["available"] is True
+    assert exp["test_metrics"]["metrics"]["overall_accuracy"] >= 0.90
+
+
+def test_quantum_predict_real_image():
+    sample_path = Path("data/eurosat/2750/Forest/Forest_1.jpg")
+    if not sample_path.exists():
+        pytest.skip("EuroSAT dataset not on disk")
+
+    with open(sample_path, "rb") as f:
+        img_bytes = f.read()
+
+    files = {"file": ("Forest_1.jpg", img_bytes, "image/jpeg")}
+    response = client.post("/api/models/quantum/predict", files=files)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    inf = data["inference"]
+    assert "predicted_class" in inf
+    assert "confidence" in inf
+    assert 0.0 <= inf["confidence"] <= 1.0
+    assert "all_probabilities" in inf
+    assert len(inf["all_probabilities"]) == 10
+    assert "expectation_values" in inf
+    assert len(inf["expectation_values"]) == 8
+    for z in inf["expectation_values"]:
+        assert -1.0 <= z <= 1.0
+    assert "timings_ms" in inf
+    assert "quantum_simulator" in inf["timings_ms"]
+
+
+def test_quantum_predict_base64_payload():
+    import base64
+    sample_path = Path("data/eurosat/2750/SeaLake/SeaLake_1.jpg")
+    if not sample_path.exists():
+        pytest.skip("EuroSAT dataset not on disk")
+
+    with open(sample_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("utf-8")
+
+    response = client.post("/api/models/quantum/predict", json={"image_base64": f"data:image/jpeg;base64,{b64}"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert "predicted_class" in data["inference"]
+    assert "expectation_values" in data["inference"]
+
+
 
 
